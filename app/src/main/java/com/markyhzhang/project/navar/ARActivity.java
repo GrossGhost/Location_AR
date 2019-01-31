@@ -1,9 +1,15 @@
 package com.markyhzhang.project.navar;
 
+import android.Manifest;
 import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.location.Location;
+import android.location.LocationListener;
+import android.location.LocationManager;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.Snackbar;
+import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -18,6 +24,7 @@ import com.google.ar.core.TrackingState;
 import com.google.ar.core.exceptions.CameraNotAvailableException;
 import com.google.ar.core.exceptions.UnavailableException;
 import com.google.ar.sceneform.ArSceneView;
+import com.google.ar.sceneform.rendering.ModelRenderable;
 import com.google.ar.sceneform.rendering.ViewRenderable;
 
 import java.util.Collection;
@@ -29,7 +36,7 @@ import uk.co.appoly.arcorelocation.LocationScene;
 import uk.co.appoly.arcorelocation.utils.ARLocationPermissionHelper;
 
 
-public class ARActivity extends AppCompatActivity implements View.OnClickListener{
+public class ARActivity extends AppCompatActivity implements View.OnClickListener {
 
     private boolean installRequested;
     private boolean hasFinishedLoading = false;
@@ -41,6 +48,8 @@ public class ARActivity extends AppCompatActivity implements View.OnClickListene
     private LocationScene locationScene;
 
     private WaypointManager waypointManager;
+    private LocationManager locationManager;
+    private Location currentLocation;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -57,7 +66,7 @@ public class ARActivity extends AppCompatActivity implements View.OnClickListene
 
         Collection<Waypoint> waypoints = waypointManager.getWaypoints();
 
-        CompletableFuture<ViewRenderable>[] layouts = waypointManager.getLayouts();
+        CompletableFuture<ModelRenderable>[] layouts = waypointManager.getLayouts();
 
         CompletableFuture.allOf(layouts)
                 .handle(
@@ -74,7 +83,7 @@ public class ARActivity extends AppCompatActivity implements View.OnClickListene
                             try {
                                 int i = 0;
                                 for (Waypoint waypoint : waypoints)
-                                    waypoint.setLayoutRenderable(layouts[i++].get());
+                                    waypoint.setLayoutRenderable(layouts[i++].get(), ARActivity.this);
                                 hasFinishedLoading = true;
 
                             } catch (InterruptedException | ExecutionException ex) {
@@ -88,7 +97,8 @@ public class ARActivity extends AppCompatActivity implements View.OnClickListene
             if (!hasFinishedLoading) return;
             if (locationScene == null) {
                 locationScene = new LocationScene(this, this, arSceneView);
-
+                //locationScene.setAnchorRefreshInterval(20);
+                locationScene.setRefreshAnchorsAsLocationChanges(true);
                 for (Waypoint waypoint : waypoints) {
                     locationScene.mLocationMarkers.add(waypoint.getLocationMarker());
                 }

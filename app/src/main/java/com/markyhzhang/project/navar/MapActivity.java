@@ -136,7 +136,7 @@ public class MapActivity extends AppCompatActivity
 
                     googleMap.addMarker(new MarkerOptions().position(latLng).title(waypointName.getText().toString())).setTag(id);
 
-                    waypointManagerInstance.add(id, waypointName.getText().toString(), R.layout.arobject_rectangular, Math.round(latLng.longitude*1000000.0)/1000000.0, Math.round(latLng.latitude*1000000.0)/1000000.0);
+                    waypointManagerInstance.add(id, waypointName.getText().toString(), R.raw.andy, Math.round(latLng.longitude*1000000.0)/1000000.0, Math.round(latLng.latitude*1000000.0)/1000000.0);
 
                     dialog.hide();
                 }
@@ -184,8 +184,6 @@ public class MapActivity extends AppCompatActivity
 //        CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLngZoom(latLng, 15);
 //        googleMap.animateCamera(cameraUpdate);
 //        googleMap.addMarker(new MarkerOptions().position(new LatLng(location.getLatitude(), location.getLongitude())));
-
-
         locationManager.removeUpdates(this);
     }
 

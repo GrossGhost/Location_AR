@@ -4,7 +4,9 @@ import android.app.Application;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.util.Log;
+import android.view.View;
 
+import com.google.ar.sceneform.rendering.ModelRenderable;
 import com.google.ar.sceneform.rendering.ViewRenderable;
 
 import java.util.ArrayDeque;
@@ -60,8 +62,8 @@ public class WaypointManager extends Application{
     }
 
     private Waypoint justAdd(String id, String name, int layoutID, double longitude, double latitude){
-        Waypoint waypoint = new Waypoint(name, ViewRenderable.builder()
-                .setView(context, layoutID)
+        Waypoint waypoint = new Waypoint(name, ModelRenderable.builder()
+                .setSource(context, layoutID)
                 .build(), longitude, latitude, id);
         waypointMap.put(waypoint.getId(), waypoint);
         return waypoint;
@@ -87,8 +89,8 @@ public class WaypointManager extends Application{
                             }
 
                             try {
-                                int i = 0;
-                                waypoint.setLayoutRenderable(waypoint.getLayout().get());
+
+                                waypoint.setLayoutRenderable(waypoint.getLayout().get(), context);
                                 waypoint.setFinishedLoading(true);
 
                             } catch (InterruptedException | ExecutionException ex) {
@@ -127,8 +129,8 @@ public class WaypointManager extends Application{
         return waypointMap.values();
     }
 
-    public CompletableFuture<ViewRenderable>[] getLayouts(){
-        CompletableFuture<ViewRenderable>[] layouts = new CompletableFuture[getWaypoints().size()];
+    public CompletableFuture<ModelRenderable>[] getLayouts(){
+        CompletableFuture<ModelRenderable>[] layouts = new CompletableFuture[getWaypoints().size()];
         int i = 0;
         for (Waypoint waypoint : waypointMap.values()) {
             layouts[i++] = waypoint.getLayout();
